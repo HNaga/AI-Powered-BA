@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory # Added send_from_directory
 
 app = Flask(__name__)
 
@@ -46,9 +46,10 @@ def process_statement():
     return jsonify(response_data), 200
 
 @app.route('/')
-def home():
-    """A simple route for the home page to verify the app is running."""
-    return "Flask API for AI Processing is running!"
+def serve_index(): # Renamed from home for clarity, though not strictly necessary
+    """Serves the index.html file from the current directory (project root)."""
+    # Assumes index.html is in the same directory as app.py
+    return send_from_directory('.', 'index.html')
 
 if __name__ == '__main__':
     # Runs the Flask development server
