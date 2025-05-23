@@ -105,6 +105,11 @@
             border-radius: 3px;
         }
         #aiResponseArea p { margin: 5px 0; }
+        .parsing-note {
+            font-style: italic;
+            font-size: 0.9em;
+            color: #555;
+        }
 
 
         /* Right Sidebar (Integrated Chat Panel) */
@@ -230,6 +235,7 @@
                 <h4>AI Analysis:</h4>
                 <p><strong>Original Statement:</strong> <span id="originalStatementOutput"></span></p>
                 <p><strong>Summary:</strong> <span id="summaryOutput"></span></p>
+                <p id="parsingNote" class="parsing-note" style="display: none;">(Note: The AI response was not in the expected format, so the full text is shown as summary.)</p>
                 <p><strong>Keywords:</strong> <span id="keywordsOutput"></span></p>
                 <p><strong>Status:</strong> <span id="statusOutput"></span></p>
             </div>
@@ -261,7 +267,6 @@
         // Basic JS for chat interaction mockup in the right sidebar
         function sendMessage() {
             const chatInput = document.getElementById('chatInput');
-            const chatHistory = document.getElementById('chatHistory');
             const messageText = chatInput.value.trim();
 
             if (messageText) {
@@ -272,6 +277,8 @@
                 
                 setTimeout(() => {
                     aiThinkingBubble.innerHTML = "Received: '" + messageText + "'. How can I help further with this?";
+                    // Ensure chat scrolls to bottom only after the message is fully updated
+                    const chatHistory = document.getElementById('chatHistory');
                     chatHistory.scrollTop = chatHistory.scrollHeight;
                 }, 1000);
 
@@ -302,6 +309,11 @@
 
             const problemStatementInput = document.getElementById('problemStatementInput');
             const statement = problemStatementInput.value.trim();
+            const aiResponseArea = document.getElementById('aiResponseArea');
+            const parsingNoteElement = document.getElementById('parsingNote');
+
+            // Reset parsing note visibility
+            parsingNoteElement.style.display = 'none';
             
             if (!statement) {
                 alert("Please enter a problem statement.");
@@ -322,23 +334,37 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`) });
+                    // Try to parse error response from backend
+                    return response.json().then(err => { 
+                        // If err.error exists, use it, otherwise use a generic HTTP status message
+                        throw new Error(err.error || `HTTP error! status: ${response.status}`);
+                    }).catch(() => {
+                        // If response.json() itself fails (e.g., not valid JSON from server)
+                        throw new Error(`HTTP error! status: ${response.status}. Could not parse error response.`);
+                    });
                 }
                 return response.json();
             })
             .then(data => {
                 // Display in Center Panel's aiResponseArea
-                const aiResponseArea = document.getElementById('aiResponseArea');
                 document.getElementById('originalStatementOutput').textContent = data.original_statement;
                 document.getElementById('summaryOutput').textContent = data.summary;
-                document.getElementById('keywordsOutput').textContent = data.keywords.join(', ');
+                document.getElementById('keywordsOutput').textContent = data.keywords.join(', '); // Keywords is an array
                 document.getElementById('statusOutput').textContent = data.processing_status;
+                
+                let chatMessage = `<strong>Analysis Complete for: "${data.original_statement.substring(0,50)}..."</strong><br>
+                                   <strong>Summary:</strong> ${data.summary}<br>
+                                   <strong>Keywords:</strong> ${data.keywords.join(', ')}`;
+
+                if (data.processing_status === 'success_real_ai_parsing_failed') {
+                    parsingNoteElement.style.display = 'block'; // Show the note
+                    chatMessage += "<br><small>(Note: AI response might be less structured as full parsing failed.)</small>";
+                }
+                
                 aiResponseArea.style.display = 'block'; // Make it visible
 
                 // Display in Right Sidebar's chat-history
-                thinkingBubble.innerHTML = `<strong>Analysis Complete for: "${data.original_statement.substring(0,50)}..."</strong><br>
-                                    <strong>Summary:</strong> ${data.summary}<br>
-                                    <strong>Keywords:</strong> ${data.keywords.join(', ')}`;
+                thinkingBubble.innerHTML = chatMessage;
                 
                 problemStatementInput.value = ''; // Clear textarea
             })
@@ -347,7 +373,6 @@
                 const errorMessage = `Error processing statement: ${error.message}`;
                 
                 // Display error in Center Panel's aiResponseArea
-                const aiResponseArea = document.getElementById('aiResponseArea');
                 document.getElementById('originalStatementOutput').textContent = statement; // Show what was submitted
                 document.getElementById('summaryOutput').textContent = 'Error';
                 document.getElementById('keywordsOutput').textContent = 'Error';
