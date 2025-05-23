@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI BA Platform</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f4f7f6; /* Light gray background for the whole page */
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            width: 100%;
+            background-color: #333; /* Dark gray */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box; /* Include padding in width calculation */
+            flex-shrink: 0; /* Prevent nav from shrinking */
+        }
+        .top-nav > div {
+            padding: 5px 10px;
+        }
+        .logo { font-weight: bold; font-size: 1.2em; }
+        .project-selector select { padding: 5px; border-radius: 3px; border: 1px solid #555;}
+        .search-bar input { padding: 5px; border-radius: 3px; border: 1px solid #555; }
+        .nav-icons > span { margin-left: 15px; cursor: pointer; }
+
+        /* Main Content Area */
+        .main-content-area {
+            display: flex;
+            flex-grow: 1; /* Allows this area to take up remaining vertical space */
+            overflow: hidden; /* Prevent scrollbars on main area if children are too big */
+        }
+
+        /* Left Sidebar (Project Navigation) */
+        .left-sidebar {
+            width: 220px;
+            background-color: #e9ecef; /* Light grayish blue */
+            padding: 20px;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+        }
+        .left-sidebar h3 { margin-top: 0; color: #333; }
+        .left-sidebar ul { list-style: none; padding: 0; }
+        .left-sidebar ul li a {
+            display: block;
+            padding: 8px 0;
+            color: #333;
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+        }
+        .left-sidebar ul li a:hover, .left-sidebar ul li a.active {
+            color: #007bff; /* Blue on hover/active */
+            font-weight: bold;
+        }
+        .project-status {
+             margin-top: auto; font-size: 0.9em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;
+        }
+
+        /* Center Panel (Main Work Area) */
+        .center-panel {
+            flex-grow: 1; /* Takes up the remaining space */
+            padding: 20px;
+            background-color: #fff; /* White background */
+            overflow-y: auto; /* Add scroll if content overflows */
+        }
+        .center-panel h2, .center-panel h4 { color: #333; }
+        .problem-statement-form textarea {
+            width: calc(100% - 22px); /* Adjust for padding */
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-family: sans-serif;
+        }
+        .problem-statement-form button {
+            padding: 10px 20px;
+            background-color: #28a745; /* Green */
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .problem-statement-form button:hover {
+            background-color: #218838; /* Darker green */
+        }
+        #aiResponseArea {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 3px;
+        }
+        #aiResponseArea p { margin: 5px 0; }
+
+
+        /* Right Sidebar (Integrated Chat Panel) */
+        .right-sidebar {
+            width: 300px;
+            background-color: #f8f9fa; /* Very light gray */
+            border-left: 1px solid #ccc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+        }
+        .right-sidebar h3 { margin-top: 0; text-align: center; color: #333; }
+        .chat-history {
+            flex-grow: 1;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #fff; /* White chat history background */
+            overflow-y: auto; /* For scrollable chat history */
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* Space between chat bubbles */
+        }
+        .chat-bubble {
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .chat-bubble.user {
+            background-color: #007bff; /* Blue for user */
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        .chat-bubble.assistant {
+            background-color: #e9ecef; /* Light gray for assistant */
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        .chat-input { display: flex; }
+        .chat-input input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px 0 0 3px;
+        }
+        .chat-input button {
+            padding: 10px 15px;
+            background-color: #007bff; /* Blue */
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 0 3px 3px 0;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .chat-input button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="logo">AI BA Platform</div>
+        <div class="project-selector">
+            <label for="projectSelect" style="margin-right: 5px; font-size: 0.9em;">Current Project:</label>
+            <select id="projectSelect">
+                <option>Project Mercury</option>
+                <option>Project Gemini</option>
+                <option>Project Apollo</option>
+            </select>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Global Search...">
+        </div>
+        <div class="nav-icons">
+            <span>🔔</span> <!-- Notification Bell Icon -->
+            <span>⚙️</span> <!-- Settings Cog Icon -->
+            <span>👤</span> <!-- User Profile Icon -->
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-content-area">
+
+        <!-- Left Sidebar (Project Navigation) -->
+        <aside class="left-sidebar">
+            <h3>Project Mercury</h3>
+            <ul>
+                <li><a href="#" class="active">Overview</a></li>
+                <li><a href="#">Requirements Elicitation</a></li>
+                <li><a href="#">Requirements List</a></li>
+                <li><a href="#">User Stories</a></li>
+                <li><a href="#">Documents (BRD, SRS)</a></li>
+                <li><a href="#">Diagrams</a></li>
+                <li><a href="#">Risk Analysis</a></li>
+                <li><a href="#">Stakeholder Register</a></li>
+                <li><a href="#">Project Settings</a></li>
+            </ul>
+            <div class="project-status">
+                <p>Status: Active</p>
+                <p>Last Save: 10 mins ago</p>
+            </div>
+        </aside>
+
+        <!-- Center Panel (Main Work Area) -->
+        <main class="center-panel">
+            <h2>Problem Statement Analysis</h2>
+            <p>Enter a problem statement below to get an initial analysis from the AI assistant.</p>
+            
+            <form id="problemStatementForm" class="problem-statement-form">
+                <textarea id="problemStatementInput" placeholder="Describe the problem or opportunity..." required></textarea>
+                <button type="submit" id="submitProblemStatement">Analyze Statement</button>
+            </form>
+            
+            <div id="aiResponseArea" style="display: none;"> <!-- Initially hidden -->
+                <h4>AI Analysis:</h4>
+                <p><strong>Original Statement:</strong> <span id="originalStatementOutput"></span></p>
+                <p><strong>Summary:</strong> <span id="summaryOutput"></span></p>
+                <p><strong>Keywords:</strong> <span id="keywordsOutput"></span></p>
+                <p><strong>Status:</strong> <span id="statusOutput"></span></p>
+            </div>
+
+            <hr style="margin: 30px 0;">
+
+            <h3>Further Interaction Area</h3>
+             <p>This area can be used for follow-up actions, displaying generated artifacts, or more detailed interaction based on the AI's analysis.</p>
+            <div class="content-placeholder">
+                <p><strong>Dynamic Content Placeholder</strong></p>
+                <p><em>(e.g., Input forms, AI outputs, document editors, data grids will load here.)</em></p>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Integrated Chat Panel) -->
+        <aside class="right-sidebar">
+            <h3>AI Assistant Chat</h3>
+            <div class="chat-history" id="chatHistory">
+                <div class="chat-bubble assistant">Hello! I'm your AI BA/SA assistant for Project Mercury. How can I assist you today? You can also use the form in the center panel to submit a problem statement for analysis.</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Interact with AI Assistant...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </aside>
+
+    </div>
+    <script>
+        // Basic JS for chat interaction mockup in the right sidebar
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const chatHistory = document.getElementById('chatHistory');
+            const messageText = chatInput.value.trim();
+
+            if (messageText) {
+                appendMessageToChat(messageText, 'user');
+                
+                // Simple AI response mockup for direct chat
+                const aiThinkingBubble = appendMessageToChat("Thinking...", 'assistant', true);
+                
+                setTimeout(() => {
+                    aiThinkingBubble.innerHTML = "Received: '" + messageText + "'. How can I help further with this?";
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }, 1000);
+
+                chatInput.value = ''; // Clear input
+            }
+        }
+
+        function appendMessageToChat(text, sender, isThinking = false) {
+            const chatHistory = document.getElementById('chatHistory');
+            const bubble = document.createElement('div');
+            bubble.classList.add('chat-bubble', sender);
+            bubble.innerHTML = text; // Use innerHTML to allow basic formatting like <br>
+            chatHistory.appendChild(bubble);
+            chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom
+            return bubble; // Return the bubble if it needs to be updated (e.g., "Thinking...")
+        }
+
+        // Event listener for chat input Enter key
+        document.getElementById('chatInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Event listener for the problem statement form
+        document.getElementById('problemStatementForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const problemStatementInput = document.getElementById('problemStatementInput');
+            const statement = problemStatementInput.value.trim();
+            
+            if (!statement) {
+                alert("Please enter a problem statement.");
+                return;
+            }
+
+            // Display user's problem statement in chat
+            appendMessageToChat(`Problem Statement Submitted: "${statement}"`, 'user');
+            const thinkingBubble = appendMessageToChat("AI is analyzing the statement...", 'assistant', true);
+
+
+            fetch('/api/process_statement', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ problem_statement: statement }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Display in Center Panel's aiResponseArea
+                const aiResponseArea = document.getElementById('aiResponseArea');
+                document.getElementById('originalStatementOutput').textContent = data.original_statement;
+                document.getElementById('summaryOutput').textContent = data.summary;
+                document.getElementById('keywordsOutput').textContent = data.keywords.join(', ');
+                document.getElementById('statusOutput').textContent = data.processing_status;
+                aiResponseArea.style.display = 'block'; // Make it visible
+
+                // Display in Right Sidebar's chat-history
+                thinkingBubble.innerHTML = `<strong>Analysis Complete for: "${data.original_statement.substring(0,50)}..."</strong><br>
+                                    <strong>Summary:</strong> ${data.summary}<br>
+                                    <strong>Keywords:</strong> ${data.keywords.join(', ')}`;
+                
+                problemStatementInput.value = ''; // Clear textarea
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMessage = `Error processing statement: ${error.message}`;
+                
+                // Display error in Center Panel's aiResponseArea
+                const aiResponseArea = document.getElementById('aiResponseArea');
+                document.getElementById('originalStatementOutput').textContent = statement; // Show what was submitted
+                document.getElementById('summaryOutput').textContent = 'Error';
+                document.getElementById('keywordsOutput').textContent = 'Error';
+                document.getElementById('statusOutput').textContent = errorMessage;
+                aiResponseArea.style.display = 'block';
+
+                // Display error in Right Sidebar's chat-history
+                thinkingBubble.innerHTML = `Sorry, I encountered an error: ${errorMessage}`;
+                thinkingBubble.style.backgroundColor = '#ffdddd'; // Light red for error
+            });
+        });
+
+    </script>
+</body>
+</html>

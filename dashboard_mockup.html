@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Mockup</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f4f7f6; /* Light gray background for the whole page */
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            width: 100%;
+            background-color: #333; /* Dark gray */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box; /* Include padding in width calculation */
+            flex-shrink: 0; /* Prevent nav from shrinking */
+        }
+        .top-nav > div {
+            padding: 5px 10px;
+        }
+        .logo { font-weight: bold; font-size: 1.2em; }
+        .project-selector select { padding: 5px; }
+        .search-bar input { padding: 5px; width: 200px; }
+        .nav-icons > span { margin-left: 15px; cursor: pointer; }
+
+        /* Main Content Area */
+        .main-content-area {
+            display: flex;
+            flex-grow: 1; /* Allows this area to take up remaining vertical space */
+            overflow: hidden; /* Prevent scrollbars on main area if children are too big */
+        }
+
+        /* Left Sidebar (Project Navigation) */
+        .left-sidebar {
+            width: 220px;
+            background-color: #e9ecef; /* Light grayish blue */
+            padding: 20px;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+        }
+        .left-sidebar h3 { margin-top: 0; }
+        .left-sidebar ul { list-style: none; padding: 0; }
+        .left-sidebar ul li a {
+            display: block;
+            padding: 8px 0;
+            color: #333;
+            text-decoration: none;
+        }
+        .left-sidebar ul li a:hover {
+            color: #007bff; /* Blue on hover */
+        }
+
+        /* Center Panel (Main Work Area) */
+        .center-panel {
+            flex-grow: 1; /* Takes up the remaining space */
+            padding: 20px;
+            background-color: #fff; /* White background */
+            overflow-y: auto; /* Add scroll if content overflows */
+        }
+
+        /* Right Sidebar (Integrated Chat Panel) */
+        .right-sidebar {
+            width: 300px;
+            background-color: #f8f9fa; /* Very light gray */
+            border-left: 1px solid #ccc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+        }
+        .right-sidebar h3 { margin-top: 0; text-align: center; }
+        .chat-history {
+            flex-grow: 1;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #fff; /* White chat history background */
+            overflow-y: auto; /* For scrollable chat history */
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-bubble {
+            padding: 8px 12px;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .chat-bubble.user {
+            background-color: #007bff; /* Blue for user */
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        .chat-bubble.assistant {
+            background-color: #e9ecef; /* Light gray for assistant */
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        .chat-input { display: flex; }
+        .chat-input input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px 0 0 3px;
+        }
+        .chat-input button {
+            padding: 10px 15px;
+            background-color: #007bff; /* Blue */
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 0 3px 3px 0;
+        }
+        .chat-input button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="logo">Platform Name</div>
+        <div class="project-selector">
+            <select>
+                <option>Project Alpha</option>
+                <option>Project Beta</option>
+            </select>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Global Search...">
+        </div>
+        <div class="nav-icons">
+            <span>🔔 Notifications</span>
+            <span>👤 User Profile</span>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-content-area">
+
+        <!-- Left Sidebar (Project Navigation) -->
+        <aside class="left-sidebar">
+            <h3>Project Mercury</h3>
+            <ul>
+                <li><a href="#">Overview</a></li>
+                <li><a href="#">Requirements</a></li>
+                <li><a href="#">User Stories</a></li>
+                <li><a href="#">Documents (BRD, SRS)</a></li>
+                <li><a href="#">Diagrams</a></li>
+                <li><a href="#">Risks</a></li>
+                <li><a href="#">Stakeholders</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+            <div style="margin-top: auto; font-size: 0.9em; color: #666;">
+                <p>Project Status: Active</p>
+            </div>
+        </aside>
+
+        <!-- Center Panel (Main Work Area) -->
+        <main class="center-panel">
+            <h2>Main Content Area</h2>
+            <p>This area will display the primary content based on the selection from the left sidebar. For example:</p>
+            <ul>
+                <li>Document Editor for BRDs/SRSs</li>
+                <li>Grid view for Requirements or User Stories</li>
+                <li>Diagramming tool interface (or generated diagram display)</li>
+                <li>Project Overview Dashboard</li>
+            </ul>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <div style="height: 300px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; margin-top: 20px; background-color: #f9f9f9;">
+                Placeholder for a complex component like an editor or grid.
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Integrated Chat Panel) -->
+        <aside class="right-sidebar">
+            <h3>AI Assistant</h3>
+            <div class="chat-history">
+                <div class="chat-bubble assistant">Hello! How can I help you with Project Mercury today?</div>
+                <div class="chat-bubble user">Can you list the high-priority functional requirements?</div>
+                <div class="chat-bubble assistant">Sure, retrieving them now... Here are the top 3: ...</div>
+                <div class="chat-bubble user">Thanks! Let's draft a user story for the first one.</div>
+                 <div class="chat-bubble assistant">Okay, what is the user role for this story?</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" placeholder="Type your message...">
+                <button>Send</button>
+            </div>
+        </aside>
+
+    </div>
+
+</body>
+</html>
